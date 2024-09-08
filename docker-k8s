@@ -1,0 +1,79 @@
+monolithic setup:
+--------------------
+disadvantage:
+1. Dependent applications.
+2. dont have any automation
+3. No scale-in and scale-out capbility.
+
+
+virtual machines:
+------------------
+4 virtual machines has been created.but only 1 in use.
+boot period for  vm is ~ 1 to 2 mins.
+
+containerization:
+------------------
+dockerhub
+docker host : machine where containerization(docker) software is present.
+images
+containers
+dockerfile  : text file which contains application code along with dependencies information
+1. will always have a name as dockerfile.
+2. you build a dockerfile to create image.
+
+
+
+How to write a dockerfile:
+FROM : what will be the base image of your container.
+RUN: It is used to execute a command , install a package, uninstanll a package.
+ENV: define a variable and its value which can be used in docerfile.
+WORKDIR: used to specify directory where commands can be executed.
+COPY: copy a file from dockerhost to container.
+ADD: copy files from dockerhost and unzips it in container directory.
+CMD: Run a commnd at the time of container launc, can be overwritten.
+ENTRYPOINT: Run a commnd at the time of container launch can not be overwritten.
+
+usecase: developer has written one index.html file which needs nginx software to host which is using ubuntu os, 
+exposing one networking port as 80 for application to work.
+
+code: index.html
+req:
+	1. ubuntu os
+	2. nginx webserver
+	3. network port 80
+
+
+FROM ubuntu:5.1
+RUN apt-get update
+RUN apt-get install nginx -y
+COPY index.html /var/www/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+
+Usecase: deploy one asp.net application which is used to create a static website by using container . 
+This container image must be present in a private repository hosted on azure.
+
+dependencies:
+-------------
+dockerfile
+development files 
+source code
+
+Requirements:
+-------------
+azure infrstructure must be present
+resource group
+acr : private imange/container registry hosted on azure cloud. azure container repository
+web applications
+
+
+
+Azure resources:
+------------------
+1. subscription: It ised to group together all resources for one environment.
+2. Resource group" It is used to group resources based on its utility in one subscription.
+
+-------------------------------------------------------------------------------------------------
+Kubernetes:
+challenges without kubernetes
