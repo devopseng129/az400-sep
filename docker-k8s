@@ -74,6 +74,134 @@ Azure resources:
 1. subscription: It ised to group together all resources for one environment.
 2. Resource group" It is used to group resources based on its utility in one subscription.
 
--------------------------------------------------------------------------------------------------
 Kubernetes:
 challenges without kubernetes
+------------------------------
+1. load sharing across multiple machines.
+2. High availablity where containers created should be up and runnignas desired.
+	actual no. of containers = desired no. of containers.
+3. auto scaling based on load.
+4. managment of kubernetes setup in onpremise-infrstructure.
+
+what is kubernetes?
+A: It is container orchestration tool, manages container lifecycle,schedules container and monitors it.
+
+facts about k8s:
+-----------------
+> It is capable of managing cluster/set of nodes.
+> containerisation tool must e installed in each node.
+> k8s works on master-slave/agent architecture.
+> different cloud vendor provides k8s as a managed service
+	AWS--> EKS
+	GCP--> GKE
+	Azure --> AKS
+
+Manifest are instructions to be passed to k8.yaml and json.
+yaml: yaml aint a marku language
+
+multiple objects: 
+1. pods
+2. service
+3. replicaset
+4. deployment set
+5. secrets
+6. config mags
+7. persistent volume
+8. pod autoscaler
+
+
+
+yaml filw hcih you write in k8s ahs below componets:
+-------------------------------------------------------
+
+apiVersion:
+kind:
+metadata:
+spec:
+
+mainfest file for pod
+
+pod.yml ==> yaml file to create pod
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sample-pod
+spec:
+  conatiners:
+  - name: c1
+    image: nginx
+	
+	
+repicaset
+	
+	
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  # modify replicas according to your case
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: us-docker.pkg.dev/google-samples/containers/gke/gb-frontend:v5
+		
+		
+		
+---------------------------------------------------------------------------------------
+azure-pipeline.yaml file
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+  
+steps:
+- task: replacetokens@4
+  displayName: "Replace admin role for webapp access"
+  inputs:
+    rootDirectory:
+	targetFiles: 
+   
+- task: DockerCompose@0
+  displayName: 'run microservices using docker-compose templates'
+  inputs:
+    containerregistrytype: 'Azure container registry'
+	dockerComposeFile: 'docker-compose-file.yaml'
+	action: 'Run a Docker Compose command'
+	azureSubscription: '0000-1111-2222-3333'
+- task:
+- task:
+
+
+
+---------------------------------------------------
+usecase: deploy multi container web application using aks cluster.
+
+Requirements:
+application code
+docker-composefile
+dockerfile
+
+acr  : devopstutorialacr 
+aks: aks cluster and nodepools
+database: sql server and sql database
+webapp:
+
+
+
+
+dependencies:
