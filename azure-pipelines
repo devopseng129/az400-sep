@@ -1,0 +1,24 @@
+steps:
+- task: qetza.replacetokens.replacetokens-task.replacetokens@6
+  displayName: 'Replace acr tokens in appsettings.json'
+  inputs:
+    root: '$(build.sourcesdirectory)/src/MyHealth.Web'
+    sources: appsettings.json
+    addBOM: true
+	
+	
+	steps:
+- task: DockerCompose@1
+  displayName: 'Run services'
+  inputs:
+    dockerComposeFile: 'docker-compose.ci.build.yml'
+    action: 'Run services'
+    detached: false
+	
+	steps:
+- task: DockerCompose@0
+  displayName: 'Run services'
+  inputs:
+    dockerComposeFile: 'docker-compose.ci.build.yml'
+    action: 'Run services'
+    detached: false
