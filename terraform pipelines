@@ -1,0 +1,238 @@
+usecase:
+create plenty of resources:
+4 windows VMs, 6 linux vms
+4 sql servers
+2 DBs in each server
+web applications
+2 aks clusters
+2 acrs
+azure monitor
+application insights
+
+IaC: Infrastructure as a code: It is a code which is used to build infrastucture.
+ARM: azure resource manager.
+benefits:
+1. It helps to create resources by execution of script
+
+Drwabacks:
+1. Specific to azure
+2. You can not create mmore than 1 resource at a time.
+3. Its not user friendly
+4. Its not having good customer/user support.
+
+
+Terraform: 
+1. It is a cloud agnotic tool.
+2. Its manufactured/developed by HCL(hashicorp limited).
+
+
+Use cases for configuration managment tool:
+-------------------------------------------
+Install java v11.0 in 2 linux vms out of 20 vms. v21.0\
+
+Ansible:
+----------
+Architecture:
+push based architecture
+az login
+
+az account set --subscription <sub id>
+
+az group create --name devopstutorialsclirg --location eastus
+
+az vm create --resource-group devopstutorialsclirg --name devopstutorialclivm --image Win2022AzureEditionCore --public-ip-sku Standard --admin-username azureuser
+
+Tempadminpassword123!
+
+terraform state file
+
+
+
+terraform has different blocks:
+
+provider: azurerm
+
+
+resource: It is used to create any resources in azure cloud
+
+variable: 
+
+output
+
+Install chocolatey for terraform installation:
+----------------------------------------------
+https://chocolatey.org/install?_gl=1*11c7712*_ga*MTYyODQ4MjU4MC4xNzI3NTM2NzE5*_ga_0WDD29GGN2*MTcyNzUzNjcxOC4xLjAuMTcyNzUzNjcxOC4wLjAuMA..#individual
+
+> Get-ExecutionPolicy ==> to verify is is AllSigned
+> Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+Trivial method to download terraform:
+----------------------------------------
+> downloaded amd binary for terraform
+> updated path variable in system and environment variables.
+
+terraform commands:
+> terraform init
+> terraform validate
+> terraform plan
+> terraform destroy
+
+symbols in terraform:
+----------------------
++ create : green color
+~ update : yellow color
+- delete : red
+
+
+count = 2
+["item1", "item2"]
+index value of item1= 0
+index value of item2= 1
+
+---------------------------
+main.tf
+
+resource "azurerm_resource_group" "rg_name" {
+    name        = var.rg_name
+    location    = var.location
+    tags = {
+      created_by = "terraform"
+      name       = var.rg_name
+      app        = var.app_name           
+    }
+}
+
+resource "azurerm_virtual_network" "example_vnet" {
+    name                = var.vnet_name
+    address_space       = var.vnet_address_space
+    location            = var.location
+    resource_group_name = azurerm_resource_group.rg_name.name
+    tags = {
+      created_by = "terraform"
+      name       = var.rg_name
+      app        = var.app_name           
+    }
+}
+
+resource "azurerm_subnet" "example_snet" {
+    name                    = var.snet_name
+    resource_group_name     = azurerm_resource_group.rg_name.name
+    virtual_network_name    = azurerm_virtual_network.example_vnet.name
+    address_prefixes        = var.snet_address_prefixes 
+}
+
+resource "azurerm_network_interface" "example_nic" {
+    count                               = 2 
+    name                                = "${var.vm_nic_name}-${count.index}"
+    location                            = var.location
+    resource_group_name                 = azurerm_resource_group.rg_name.name
+    ip_configuration {
+        name                            = var.vm_ip_config
+        subnet_id                       = azurerm_subnet.example_snet.id
+        private_ip_address_allocation   = var.pvt_ip_address_allocation_type
+  }
+  
+}
+
+resource "azurerm_virtual_machine" "example_vm" {
+    count                               = 2
+    name                                = "${var.vm_name}-${count.index}"
+    location                            = var.location
+    resource_group_name                 = azurerm_resource_group.rg_name.name
+    network_interface_ids               = [azurerm_network_interface.example_nic[count.index].id]
+    vm_size                             = var.vm_size
+
+    storage_image_reference {
+        publisher = "MicrosoftWindowsServer"
+        offer     = "WindowsServer"
+        sku       = "2016-Datacenter"
+        version   = "latest"
+    }
+
+    storage_os_disk {
+        name              = "myosdisk1-${count.index}"
+        caching           = "ReadWrite"
+        create_option     = "FromImage"
+        managed_disk_type = "Standard_LRS"
+    }
+
+    os_profile {
+        computer_name  = "hostname-${count.index}"
+        admin_username = "testadmin"
+        admin_password = "Password1234!"
+    }
+
+    os_profile_windows_config {
+        enable_automatic_upgrades = false
+    }
+}
+
+
+
+variable.tf
+-----------------
+variable "rg_name" {
+    type    = string
+    default = "edurekademorg"
+}
+
+variable "location" {
+    type    = string
+    default = "eastus"
+}
+
+variable "app_name" {
+  type    = string
+  default = "demo"
+}
+
+variable "vnet_name" {
+  type = string
+  default = "edurekademovnet"
+}
+
+variable "vnet_address_space" {
+  type = list(string)
+  default = ["10.0.0.0/16"]
+}
+
+variable "snet_name" {
+  type      = string
+  default   = "edurekademosnet"
+}
+
+variable "snet_address_prefixes" {
+  type     = list(string)
+  default  = ["10.0.1.0/24"]
+}
+
+variable "vm_nic_name" {
+  type      = string
+  default   = "edurekademovmnic"
+}
+
+variable "vm_ip_config" {
+  type      = string
+  default   = "internal"
+}
+
+variable "pvt_ip_address_allocation_type" {
+  type      = string
+  default   = "Dynamic"
+}
+
+variable "vm_name" {
+  type      = string
+  default   = "edurekademovm"
+}
+
+variable "vm_size" {
+  type      = string
+  default   = "Standard_DS1_v2"
+}
+
+output.tf:
+------------
+output "resource_name" {
+    value = azurerm_resource_group.rg_name.id
+}
