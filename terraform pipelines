@@ -89,6 +89,26 @@ count = 2
 index value of item1= 0
 index value of item2= 1
 
+provider.tf:
+--------------
+terraform {
+    required_providers {
+        azurerm = {
+            source = "hashicorp/azurerm"
+            version = "4.3.0"
+        }
+        random = {
+            source = "hashicorp/random"
+            version = "3.6.3"
+        }
+    }
+}
+
+provider "azurerm" {
+    subscription_id = "4b652faa-7b9c-42a8-ab03-a74ce1188278"
+    features {}
+}
+
 ---------------------------
 main.tf
 
